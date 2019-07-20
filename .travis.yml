@@ -1,0 +1,36 @@
+cache:
+  directories:
+
+language: swift
+
+env:
+  global:
+  - LC_CTYPE=en_US.UTF-8
+  - LANG=en_US.UTF-8
+  - LANGUAGE=en_US.UTF-8
+
+matrix:
+  include:
+    - name: Swift 5.1 / Xcode 11
+      os: osx
+      osx_image: xcode11
+      env: RFCI_TASK="SwiftPM"
+    - name: Swift 5.0 / Xcode 10.2
+      os: osx
+      osx_image: xcode10.2
+      env: RFCI_TASK="SwiftPM"
+    - name: Swift 5.0 / Linux
+      os: linux
+      language: generic
+      sudo: required
+      dist: trusty
+      env: RFCI_TASK="SwiftPM"
+    - name: Xcode 11 + Code Coverage
+      os: osx
+      osx_image: xcode11
+      env: RFCI_TASK="Xcode11"
+
+before_install: ./.travis.sh SETUP
+script: ./.travis.sh MAIN
+after_success: ./.travis.sh SUCCESS
+after_failure: ./.travis.sh FAILURE

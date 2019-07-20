@@ -146,7 +146,7 @@ final class B9MulticastDelegateTests: XCTestCase {
 // MARK: -
 extension MulticastDelegate {
     var debugContent: [AnyObject] {
-        compactMap { $0 as AnyObject }
+        return compactMap { $0 as AnyObject }
     }
 }
 

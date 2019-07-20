@@ -79,7 +79,9 @@ public final class MulticastDelegate<Element> {
 
     private struct Weak {
         weak var object: AnyObject?
-        var element: Element? { object as! Element? }
+        var element: Element? {
+            return object as! Element?
+        }
     }
 
     // For Sequence, it improves performance.
@@ -111,12 +113,10 @@ extension MulticastDelegate: CustomStringConvertible {
         if itemsDescriptions.isEmpty {
             return "<\(aType): \(address). elements: []>"
         }
-        else {
-            return """
-            <\(aType): \(address). elements: [
-            \(itemsDescriptions.joined(separator: ",\n"))
-            ]>
-            """
-        }
+        return """
+        <\(aType): \(address). elements: [
+        \(itemsDescriptions.joined(separator: ",\n"))
+        ]>
+        """
     }
 }
