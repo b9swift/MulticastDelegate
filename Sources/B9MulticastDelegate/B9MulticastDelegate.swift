@@ -13,6 +13,10 @@ import Foundation
 
 /// Multicast delegate is a delegate that can have more than one element in its invocation list.
 public final class MulticastDelegate<Element> {
+    
+    public init() {
+    }
+
     private lazy var store = [Weak]()
 
     /// Add an object to the multicast delegate.
