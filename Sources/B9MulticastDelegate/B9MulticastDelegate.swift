@@ -2,7 +2,7 @@
  MulticastDelegate
  B9Swift
 
- Copyright © 2019 BB9z
+ Copyright © 2019-2021 BB9z
  https://github.com/B9Swift/MulticastDelegate
 
  The MIT License (MIT)
@@ -12,12 +12,15 @@
 import Foundation
 
 /// Multicast delegate is a delegate that can have more than one element in its invocation list.
+///
+/// This class is thread safe.
 public final class MulticastDelegate<Element> {
     
     public init() {
     }
 
-    private lazy var store = [Weak]()
+    private var store = [Weak]()
+    private let lock = NSLock()
 
     /// Add an object to the multicast delegate.
     ///
@@ -31,10 +34,14 @@ public final class MulticastDelegate<Element> {
         guard let d = delegate else { return }
         let weakRef = Weak(object: d as AnyObject)
         guard let dobj = weakRef.object else {
-            print("[B9MulticastDelegate] warning: \(d) is not an object, it will be ignored. Adding a non-object to the delegate is meaningless.")
+            print("[B9MulticastDelegate] warning: \(d) is not an object, it will be ignored. Adding a non-object as delegate is meaningless.")
             return
         }
-        if store.contains(where: { $0.object === dobj }) { return }
+        lock.lock()
+        defer { lock.unlock() }
+        if store.contains(where: { $0.object === dobj }) {
+            return
+        }
         store.append(weakRef)
         underestimatedCount += 1
     }
@@ -46,8 +53,10 @@ public final class MulticastDelegate<Element> {
     /// - Complexity: O(*n*), where *n* is the length of the internal storage.
     public func remove(_ delegate: Element?) {
         guard let d = delegate else { return }
+        lock.lock()
         store.removeAll { $0.object === d as AnyObject || $0.object == nil }
         underestimatedCount = store.count
+        lock.unlock()
     }
 
     /// Calls the given closure on each object in the multicast delegate.
@@ -56,7 +65,10 @@ public final class MulticastDelegate<Element> {
     ///
     /// - Parameter invocation: A closure that takes an object in the multicast delegate as a parameter.
     public func invoke(_ invocation: (Element) throws -> ()) rethrows {
-        for ref in store {
+        lock.lock()
+        let shadowStore = store
+        lock.unlock()
+        for ref in shadowStore {
             if let d = ref.element {
                 try invocation(d)
             }
@@ -73,6 +85,8 @@ public final class MulticastDelegate<Element> {
     ///
     /// - Complexity: O(*n*), where *n* is the length of the internal storage.
     public func contains(object: AnyObject) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
         for weakRef in store {
             if weakRef.object === object {
                 return true
@@ -115,10 +129,10 @@ extension MulticastDelegate: CustomStringConvertible {
         let address = Unmanaged.passUnretained(self).toOpaque()
         let itemsDescriptions = map { "\t\($0)" }
         if itemsDescriptions.isEmpty {
-            return "<\(aType): \(address). elements: []>"
+            return "<\(aType) \(address): elements: []>"
         }
         return """
-        <\(aType): \(address). elements: [
+        <\(aType) \(address): elements: [
         \(itemsDescriptions.joined(separator: ",\n"))
         ]>
         """

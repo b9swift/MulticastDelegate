@@ -24,6 +24,13 @@ class TestKindC {
     }
 }
 
+class TestObject: CustomStringConvertible {
+    init(description: String) {
+        self.description = description
+    }
+    var description: String
+}
+
 final class B9MulticastDelegateTests: XCTestCase {
 
     func testAddAndRemove() {
@@ -94,7 +101,7 @@ final class B9MulticastDelegateTests: XCTestCase {
 
     func testWeakRef() {
         let d = MulticastDelegate<XCTestCase>()
-        autoreleasepool {
+        do {
             let obj = XCTestCase()
             d.add(obj)
             XCTAssert(d.debugContent == [obj])
@@ -132,6 +139,56 @@ final class B9MulticastDelegateTests: XCTestCase {
             errorCount += 1
         }
         XCTAssertEqual(errorCount, 1)
+    }
+
+    func testSequenceThreadSafe() {
+        let d = MulticastDelegate<CustomStringConvertible>()
+        let queueRead = DispatchQueue(label: "Read")
+        let queueWrite1 = DispatchQueue(label: "Write1")
+        let queueWrite2 = DispatchQueue(label: "Write2")
+        let readEnd = XCTestExpectation()
+        let writeEnd1 = XCTestExpectation()
+        let writeEnd2 = XCTestExpectation()
+
+        let objectCount = 2000
+        let objs = (0...objectCount).map { TestObject(description: String($0)) }
+        let objsProviderLock = NSLock()
+        var numberOfObjectProvided = 0
+        func object(of index: Int) -> TestObject {
+            objsProviderLock.lock()
+            defer { objsProviderLock.unlock() }
+            numberOfObjectProvided += 1
+            print("\(numberOfObjectProvided) + \(index)")
+            return objs[index]
+        }
+
+        queueWrite1.async {
+            for i in 0..<(objectCount/2) {
+                d.add(object(of: i))
+            }
+            writeEnd1.fulfill()
+        }
+        queueWrite2.async {
+            for i in (objectCount/2)..<objectCount {
+                d.add(object(of: i))
+            }
+            writeEnd2.fulfill()
+        }
+        queueRead.async {
+            for i in 0...20 {
+                usleep(100_000)  // 100 ms
+                print("loop \(i) start")
+                var counter = 0
+                d.forEach { obj in
+                    counter += 1
+                }
+                print("loop \(i) end, counter = \(counter)")
+            }
+            readEnd.fulfill()
+        }
+        wait(for: [readEnd, writeEnd1, writeEnd2], timeout: 10)
+        assert(d.debugContent.count == objectCount)
+        print("end")
     }
 }
 

@@ -15,6 +15,7 @@ Using Swift Package Manager or import manually.
 
 - NSHashTable free. It results better performance, support Liunx.
 - MulticastDelegate confirms `Sequence`, which means that lots of sequence features available.
+- Thread safe.
 - Other delightful details, eg: error handling optimization, debug log optimization.
 
 ## Background
