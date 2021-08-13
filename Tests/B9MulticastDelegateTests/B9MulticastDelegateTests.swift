@@ -133,14 +133,6 @@ final class B9MulticastDelegateTests: XCTestCase {
         }
         XCTAssertEqual(errorCount, 1)
     }
-
-    static var allTests = [
-        ("testAddAndRemove", testAddAndRemove),
-        ("testSwiftObjContains", testSwiftObjContains),
-        ("testNSObjectContains", testNSObjectContains),
-        ("testWeakRef", testWeakRef),
-        ("testInvokeErrorHandling", testInvokeErrorHandling),
-    ]
 }
 
 // MARK: -
