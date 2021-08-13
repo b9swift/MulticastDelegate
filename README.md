@@ -10,6 +10,8 @@ Multicast delegate is a delegate that can have more than one element in its invo
 
 Using Swift Package Manager or import manually.
 
+你也可以使用 [gitee 镜像](https://gitee.com/b9swift/MulticastDelegate)。
+
 ## Features
 
 - NSHashTable free. It results better performance, support Liunx.
