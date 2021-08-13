@@ -3,7 +3,6 @@
 [![Swift Version](https://img.shields.io/badge/Swift-5.0+-EE5533.svg?style=flat-square)](https://swift.org)
 [![Swift Package Manager](https://img.shields.io/badge/spm-compatible-EE5533.svg?style=flat-square)](https://swift.org/package-manager)
 [![Build Status](https://img.shields.io/travis/b9swift/MulticastDelegate.svg?style=flat-square&colorA=333333&colorB=EE5533)](https://travis-ci.org/b9swift/MulticastDelegate)
-[![Codecov](https://img.shields.io/codecov/c/github/b9swift/MulticastDelegate.svg?style=flat-square&colorA=333333&colorB=EE5533)](https://codecov.io/gh/b9swift/MulticastDelegate)
 
 Multicast delegate is a delegate that can have more than one element in its invocation list.
 
