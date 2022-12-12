@@ -6,8 +6,16 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
+    - uses: actions/checkout@v3
+    - name: SPM Build
       run: swift build
-    - name: Test
+    - name: SPM Test
       run: swift test
+    - name: macOS Build
+      run: xcodebuild build -scheme B9MulticastDelegate -destination 'generic/platform=macOS' | xcpretty
+    - name: iOS Build
+      run: xcodebuild build -scheme B9MulticastDelegate -destination 'generic/platform=iOS' | xcpretty
+    - name: tvOS Build
+      run: xcodebuild build -scheme B9MulticastDelegate -destination 'generic/platform=tvOS' | xcpretty
+    - name: watchOS Build
+      run: xcodebuild build -scheme B9MulticastDelegate -destination 'generic/platform=watchOS' | xcpretty
